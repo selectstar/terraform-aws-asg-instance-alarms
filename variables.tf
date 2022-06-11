@@ -9,3 +9,7 @@ variable "schedule" {
 variable "lambda_layers" {
   default = []
 }
+
+variable "bucket-tags" {
+  type = object
+}
