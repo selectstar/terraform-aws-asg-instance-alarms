@@ -11,5 +11,5 @@ variable "lambda_layers" {
 }
 
 variable "bucket-tags" {
-  type = object
+  type = map(string)
 }
