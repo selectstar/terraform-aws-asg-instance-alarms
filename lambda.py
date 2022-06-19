@@ -4,8 +4,8 @@ import json
 import os
 
 
-ALARM_NAME_PREFIX = 'InstanceAlarm:'
 ALARM_TEMPLATES_BUCKET = os.environ['ALARM_TEMPLATES_BUCKET']
+ALARM_NAME_PREFIX = f'InstanceAlarm:{ALARM_TEMPLATES_BUCKET}:'
 ALARM_TEMPLATES_CACHE = {}
 
 # Maximum number of alarms to delete per API call.

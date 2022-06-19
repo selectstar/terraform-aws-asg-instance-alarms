@@ -1,3 +1,3 @@
 output "tag" {
-  value = "InstanceAlarm:${aws_s3_bucket_object.template.key}"
+  value = "InstanceAlarm:${var.bucket}:${aws_s3_bucket_object.template.key}"
 }
