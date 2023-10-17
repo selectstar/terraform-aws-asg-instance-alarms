@@ -1,5 +1,9 @@
 # Trigger the Lambda function with these instance events.
 
+data "aws_caller_identity" "current" {}
+
+data "aws_region" "current" {}
+
 resource "aws_cloudwatch_event_rule" "events" {
   name = var.name
 
@@ -26,7 +30,7 @@ resource "aws_cloudwatch_event_target" "events" {
 resource "aws_lambda_permission" "events" {
   statement_id  = "${var.name}-events"
   action        = "lambda:InvokeFunction"
-  function_name = module.lambda.function_name
+  function_name = "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${module.lambda.function_name}"
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.events.arn
 }
@@ -50,7 +54,7 @@ resource "aws_lambda_permission" "schedule" {
   count         = var.schedule == "" ? 0 : 1
   statement_id  = "${var.name}-schedule"
   action        = "lambda:InvokeFunction"
-  function_name = module.lambda.function_name
+  function_name = "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${module.lambda.function_name}"
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.schedule[0].arn
 }
