@@ -24,11 +24,11 @@ resource "aws_cloudwatch_event_target" "events" {
 }
 
 resource "aws_lambda_permission" "events" {
-  statement_id  = "${var.name}-events"
-  action        = "lambda:InvokeFunction"
-  function_name = module.lambda.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.events.arn
+  statement_id_prefix  = "${var.name}-events"
+  action               = "lambda:InvokeFunction"
+  function_name        = module.lambda.function_name
+  principal            = "events.amazonaws.com"
+  source_arn           = aws_cloudwatch_event_rule.events.arn
 }
 
 # Also check for changes regularly.
@@ -47,10 +47,10 @@ resource "aws_cloudwatch_event_target" "schedule" {
 }
 
 resource "aws_lambda_permission" "schedule" {
-  count         = var.schedule == "" ? 0 : 1
-  statement_id  = "${var.name}-schedule"
-  action        = "lambda:InvokeFunction"
-  function_name = module.lambda.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.schedule[0].arn
+  count               = var.schedule == "" ? 0 : 1
+  statement_id_prefix = "${var.name}-schedule"
+  action              = "lambda:InvokeFunction"
+  function_name       = module.lambda.function_name
+  principal           = "events.amazonaws.com"
+  source_arn          = aws_cloudwatch_event_rule.schedule[0].arn
 }
