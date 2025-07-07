@@ -49,7 +49,7 @@ def delete_alarms(alarm_names):
             AlarmNames=alarm_names[:DELETE_ALARMS_MAX_NAMES],
         )
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
-            raise Exception(f'ERROR: {response}')
+            raise Exception(f'Failed to delete alarms: {response}')
 
         # Move to the next chunk.
         alarm_names = alarm_names[DELETE_ALARMS_MAX_NAMES:]
