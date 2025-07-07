@@ -49,7 +49,7 @@ def delete_alarms(alarm_names):
             AlarmNames=alarm_names[:DELETE_ALARMS_MAX_NAMES],
         )
         if response['ResponseMetadata']['HTTPStatusCode'] != 200:
-            raise Exception('ERROR: {}'.format(response))
+            raise Exception(f'Failed to delete alarms: {response}')
 
         # Move to the next chunk.
         alarm_names = alarm_names[DELETE_ALARMS_MAX_NAMES:]
@@ -70,7 +70,7 @@ def delete_instance_alarms(instance_id):
     )
     alarm_names = [alarm['AlarmName'] for alarm in alarms]
 
-    print('Deleting alarms: {}'.format(alarm_names))
+    print(f'Deleting alarms: {alarm_names}')
     delete_alarms(alarm_names)
 
 
@@ -84,9 +84,8 @@ def describe_alarms(**kwargs):
     pages = paginator.paginate(**kwargs)
     for page in pages:
         if page['ResponseMetadata']['HTTPStatusCode'] != 200:
-            raise Exception('ERROR: {}'.format(page))
-        for alarm in page['MetricAlarms']:
-            yield alarm
+            raise Exception(f'ERROR: {page}')
+        yield from page['MetricAlarms']
 
 
 def describe_auto_scaling_groups(**kwargs):
@@ -99,9 +98,8 @@ def describe_auto_scaling_groups(**kwargs):
     pages = paginator.paginate(**kwargs)
     for page in pages:
         if page['ResponseMetadata']['HTTPStatusCode'] != 200:
-            raise Exception('ERROR: {}'.format(page))
-        for asg in page['AutoScalingGroups']:
-            yield asg
+            raise Exception(f'ERROR: {page}')
+        yield from page['AutoScalingGroups']
 
 
 def full_sweep():
@@ -132,13 +130,13 @@ def full_sweep():
                 alarm_name = alarm['AlarmName']
                 expected_alarm_names.add(alarm_name)
                 if alarm_name not in found_alarm_names:
-                    print('Creating missing alarm: {}'.format(alarm_name))
+                    print(f'Creating missing alarm: {alarm_name}')
                     put_metric_alarm(**alarm)
 
     # Delete any instance alarms that shouldn't exist.
     orphan_alarm_names = found_alarm_names - expected_alarm_names
     if orphan_alarm_names:
-        print('Deleting orphan alarms: {}'.format(orphan_alarm_names))
+        print(f'Deleting orphan alarms: {orphan_alarm_names}')
         delete_alarms(orphan_alarm_names)
 
 
@@ -203,7 +201,7 @@ def get_s3_object_body(**kwargs):
 
     response = s3.get_object(**kwargs)
     if response['ResponseMetadata']['HTTPStatusCode'] != 200:
-        raise Exception('ERROR: {}'.format(response))
+        raise Exception(f'ERROR: {response}')
 
     return response['Body'].read().decode('utf-8')
 
@@ -222,11 +220,11 @@ def put_metric_alarm(**alarm):
     # Create the alarm.
     response = cloudwatch.put_metric_alarm(**alarm)
     if response['ResponseMetadata']['HTTPStatusCode'] != 200:
-        raise Exception('ERROR: {}'.format(response))
+        raise Exception(f'ERROR: {response}')
 
 
 def lambda_handler(event, context):
-    print('Received event: {}'.format(event))
+    print(f'Received event: {event}')
     if event['detail-type'] == 'EC2 Instance Launch Successful':
         asg_name = event['detail']['AutoScalingGroupName']
         instance_id = event['detail']['EC2InstanceId']
